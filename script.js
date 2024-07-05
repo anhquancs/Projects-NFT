@@ -6,6 +6,7 @@ document.getElementById('walletKeyForm').addEventListener('submit', function(eve
     var apiKey = "m_wXPH_cUSMdURJe"; // Replace with your actual API key
     var walletKey = document.getElementById('walletKey').value;
     var resultDiv = document.getElementById("nftGallery");
+    
     var loadingDiv = document.getElementById("loading");
 
     resultDiv.innerHTML = ''; // Clear previous results
