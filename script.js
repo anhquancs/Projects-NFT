@@ -35,10 +35,14 @@ function fetchNFTs(walletKey, requestOptions, loadingDiv) {
             loadingDiv.style.display = 'none'; // Hide loading indicator
 
             if (result.success) {
-                result.result.forEach(nft => {
-                    const card = createCardElement(nft);
-                    nftGallery.appendChild(card);
-                });
+                if (result.result.length === 0) {
+                    nftGallery.innerHTML = '<div class="alert alert-warning">Wallet doesn\'t have any NFTs.</div>';
+                } else {
+                    result.result.forEach(nft => {
+                        const card = createCardElement(nft);
+                        nftGallery.appendChild(card);
+                    });
+                }
             } else {
                 nftGallery.innerHTML = '<div class="alert alert-warning">No NFTs found.</div>';
             }
@@ -49,6 +53,7 @@ function fetchNFTs(walletKey, requestOptions, loadingDiv) {
             nftGallery.innerHTML = '<div class="alert alert-danger">An error occurred while fetching the data. Please try again.</div>';
         });
 }
+
 
 // Function to create a card element for displaying an NFT
 function createCardElement(nft) {
@@ -67,14 +72,45 @@ function createCardElement(nft) {
         </div>
     `;
 
+    // Add click event listener to show modal with NFT details
+    card.addEventListener('click', () => {
+        showNFTModal(nft);
+    });
+
     return card;
 }
 
-// Room selection event handling
-document.querySelectorAll('.room-selector').forEach(item => {
-    item.addEventListener('click', event => {
-        var room = event.target.getAttribute('data-room');
-        nftGallery.className = ''; // Clear existing classes
-        nftGallery.classList.add('row', room); // Add selected room class to nftGallery
-    });
-});
+// Function to show the modal with NFT details
+function showNFTModal(nft) {
+    const nftDetails = document.getElementById('nftDetails');
+
+    // Populate modal with NFT details
+    nftDetails.innerHTML = `
+        <div class="text-center">
+            <img src="${nft.image_uri}" class="img-fluid mb-3" alt="${nft.name}">
+        </div>
+        <h5>${nft.name}</h5>
+        <p><strong>Symbol:</strong> ${nft.symbol}</p>
+        <p><strong>Royalty:</strong> ${nft.royalty}</p>
+        <p><strong>Description:</strong> ${nft.description}</p>
+        <p><strong>Update Authority:</strong> ${nft.update_authority}</p>
+        <p><strong>External URL:</strong> <a href="${nft.external_url}" target="_blank">${nft.external_url}</a></p>
+        <p><strong>Mint:</strong> ${nft.mint}</p>
+        <p><strong>Owner:</strong> ${nft.owner}</p>
+        <h6>Attributes:</h6>
+        <ul class="list-unstyled">
+            ${nft.attributes_array.map(attr => `<li><strong>${attr.trait_type}:</strong> ${attr.value}</li>`).join('')}
+        </ul>
+        <h6>Creators:</h6>
+        <ul class="list-unstyled">
+            ${nft.creators.map(creator => `<li><strong>Address:</strong> ${creator.address}, <strong>Share:</strong> ${creator.share}%</li>`).join('')}
+        </ul>
+    `;
+
+    // Show the modal
+    const nftModal = new bootstrap.Modal(document.getElementById('nftModal'));
+    nftModal.show();
+}
+
+
+

@@ -92,4 +92,13 @@ body {
 }
 
 
+#nftDetails {
+    word-break: break-word;
+}
+
+.modal-body {
+    overflow-wrap: break-word;
+}
+
+
 
