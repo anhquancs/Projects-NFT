@@ -1,0 +1,95 @@
+/* Custom CSS for NFT Gallery */
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-img-top {
+    border-bottom: 1px solid #ddd;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.card-img-top:hover {
+    opacity: 0.8;
+}
+
+.card-body {
+    padding: 20px;
+    background-color: #ffffff;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.card-text {
+    font-size: 1rem;
+    color: #666;
+    line-height: 1.6;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+    transition: color 0.3s ease-in-out, border-color 0.3s ease-in-out;
+}
+
+.btn-outline-primary:hover {
+    color: #0056b3;
+    border-color: #0056b3;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    color: #007bff;
+}
+
+.alert {
+    margin-top: 20px;
+}
+
+.text-center {
+    margin-bottom: 20px;
+}
+
+
+
