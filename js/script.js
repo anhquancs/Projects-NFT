@@ -1,42 +1,37 @@
-// script.js
-
 document.getElementById('walletKeyForm').addEventListener('submit', function(event) {
     event.preventDefault(); // Prevent the form from submitting the traditional way
 
-    var apiKey = "m_wXPH_cUSMdURJe"; // Replace with your actual API key
-    var walletKey = document.getElementById('walletKey').value;
-    var resultDiv = document.getElementById("nftGallery");
-    
-    var loadingDiv = document.getElementById("loading");
+    const apiKey = "m_wXPH_cUSMdURJe"; // Replace with your actual API key
+    const walletKey = document.getElementById('walletKey').value;
+    const resultDiv = document.getElementById("nftGallery");
+    const loadingDiv = document.getElementById("loading");
 
     resultDiv.innerHTML = ''; // Clear previous results
     loadingDiv.style.display = 'block'; // Show loading indicator
 
-    var myHeaders = new Headers();
+    const myHeaders = new Headers();
     myHeaders.append("x-api-key", apiKey);
 
-    var requestOptions = {
+    const requestOptions = {
         method: 'GET',
         headers: myHeaders,
         redirect: 'follow'
     };
 
-    fetchNFTs(walletKey, requestOptions, loadingDiv); // Pass loadingDiv as parameter
+    fetchNFTs(walletKey, requestOptions, loadingDiv);
 });
 
-// Function to fetch NFTs based on wallet key and display them
 function fetchNFTs(walletKey, requestOptions, loadingDiv) {
-    var nftGallery = document.getElementById("nftGallery"); // Added for clarity, assuming it's defined globally or elsewhere
+    const nftGallery = document.getElementById("nftGallery");
 
     fetch(`https://api.shyft.to/sol/v1/nft/read_all?network=devnet&address=${walletKey}`, requestOptions)
-        .then(response => response.json()) // Parse the JSON response
+        .then(response => response.json())
         .then(result => {
-            console.log(result);
             loadingDiv.style.display = 'none'; // Hide loading indicator
 
             if (result.success) {
                 if (result.result.length === 0) {
-                    nftGallery.innerHTML = '<div class="alert alert-warning">Wallet doesn\'t have any NFTs.</div>';
+                    displayMessage(nftGallery, 'Wallet doesn\'t have any NFTs.', 'warning');
                 } else {
                     result.result.forEach(nft => {
                         const card = createCardElement(nft);
@@ -44,18 +39,16 @@ function fetchNFTs(walletKey, requestOptions, loadingDiv) {
                     });
                 }
             } else {
-                nftGallery.innerHTML = '<div class="alert alert-warning">No NFTs found.</div>';
+                displayMessage(nftGallery, 'No NFTs found.', 'warning');
             }
         })
         .catch(error => {
-            console.log('error', error);
+            console.error('Error:', error);
             loadingDiv.style.display = 'none'; // Hide loading indicator
-            nftGallery.innerHTML = '<div class="alert alert-danger">An error occurred while fetching the data. Please try again.</div>';
+            displayMessage(nftGallery, 'An error occurred while fetching the data. Please try again.', 'danger');
         });
 }
 
-
-// Function to create a card element for displaying an NFT
 function createCardElement(nft) {
     const card = document.createElement('div');
     card.className = 'col-lg-4 col-md-6 mb-4';
@@ -72,7 +65,6 @@ function createCardElement(nft) {
         </div>
     `;
 
-    // Add click event listener to show modal with NFT details
     card.addEventListener('click', () => {
         showNFTModal(nft);
     });
@@ -80,11 +72,9 @@ function createCardElement(nft) {
     return card;
 }
 
-// Function to show the modal with NFT details
 function showNFTModal(nft) {
     const nftDetails = document.getElementById('nftDetails');
 
-    // Populate modal with NFT details
     nftDetails.innerHTML = `
         <div class="text-center">
             <img src="${nft.image_uri}" class="img-fluid mb-3" alt="${nft.name}">
@@ -107,10 +97,18 @@ function showNFTModal(nft) {
         </ul>
     `;
 
-    // Show the modal
     const nftModal = new bootstrap.Modal(document.getElementById('nftModal'));
     nftModal.show();
 }
 
+async function connectWallet() {
+    await window.phantom.solana.connect();
+    const walletKey = window.phantom.solana.publicKey.toBase58();
+    document.getElementById('walletKey').value = walletKey;
+    document.getElementById('walletKeyForm').style.display = 'block';
+    console.log(walletKey);
+}
 
-
+function displayMessage(container, message, type) {
+    container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+}
