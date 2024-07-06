@@ -19,19 +19,18 @@
                 <img src="White Ghost_docs_nu.svg" alt="Wallet Icon" style="width: 30px; height: 20px"> 
             </button>
         </h1>
-
+    
         <!-- Wallet Key Form -->
         <form id="walletKeyForm" class="mb-4">
             <div class="form-group">
-                <label for="walletKey">Wallet Key:</label>
-                <input type="text" class="form-control" id="walletKey" name="walletKey" placeholder="Enter Wallet Key"
-                    required>
+                <input type="text" class="form-control" id="walletKey" name="walletKey" placeholder="Enter Wallet Key" required>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
         </form>
-        
+
+        <div id="alertPlaceholder"></div>
+
         <!-- Loading Indicator -->
-        <div id="loading" class="text-center" style="display: none;">
+        <div id="loading" class="text-center" style="display: none">
             <div class="spinner-border" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
@@ -39,7 +38,7 @@
 
 
         <!-- NFT Gallery Display -->
-        <div id="nftGallery" class="row"></div>
+        <div id="nftGallery" class="row" style="margin-top: 30px;"></div>
 
         <!-- Bootstrap Modal HTML -->
         <div class="modal fade" id="nftModal" tabindex="-1" aria-labelledby="nftModalLabel" aria-hidden="true">
@@ -56,8 +55,6 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 
     <!-- Bootstrap JS and dependencies -->

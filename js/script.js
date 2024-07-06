@@ -1,6 +1,9 @@
-document.getElementById('walletKeyForm').addEventListener('submit', function(event) {
+document.getElementById('walletKeyForm').addEventListener('submit', function (event) {
     event.preventDefault(); // Prevent the form from submitting the traditional way
+    submitForm(); // Handle form submission via AJAX
+});
 
+function submitForm() {
     const apiKey = "m_wXPH_cUSMdURJe"; // Replace with your actual API key
     const walletKey = document.getElementById('walletKey').value;
     const resultDiv = document.getElementById("nftGallery");
@@ -9,23 +12,40 @@ document.getElementById('walletKeyForm').addEventListener('submit', function(eve
     resultDiv.innerHTML = ''; // Clear previous results
     loadingDiv.style.display = 'block'; // Show loading indicator
 
-    const myHeaders = new Headers();
-    myHeaders.append("x-api-key", apiKey);
-
     const requestOptions = {
         method: 'GET',
-        headers: myHeaders,
+        headers: {
+            'x-api-key': apiKey
+        },
         redirect: 'follow'
     };
 
     fetchNFTs(walletKey, requestOptions, loadingDiv);
-});
+}
 
 function fetchNFTs(walletKey, requestOptions, loadingDiv) {
     const nftGallery = document.getElementById("nftGallery");
 
-    fetch(`https://api.shyft.to/sol/v1/nft/read_all?network=devnet&address=${walletKey}`, requestOptions)
-        .then(response => response.json())
+    // Set a timeout promise that resolves after 30 seconds
+    const timeoutPromise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            reject(new Error('Timeout occurred. Please try again.'));
+        }, 30000); // 30 seconds timeout
+    });
+
+    // Perform the fetch request and race it against the timeout promise
+    Promise.race([
+        fetch(`https://api.shyft.to/sol/v1/nft/read_all?network=devnet&address=${walletKey}`, requestOptions),
+        timeoutPromise
+    ])
+        .then(response => {
+            // Check if the response is from the fetch or timeout
+            if (response instanceof Response) {
+                return response.json();
+            } else {
+                throw new Error('Timeout occurred. Please try again.');
+            }
+        })
         .then(result => {
             loadingDiv.style.display = 'none'; // Hide loading indicator
 
@@ -45,9 +65,10 @@ function fetchNFTs(walletKey, requestOptions, loadingDiv) {
         .catch(error => {
             console.error('Error:', error);
             loadingDiv.style.display = 'none'; // Hide loading indicator
-            displayMessage(nftGallery, 'An error occurred while fetching the data. Please try again.', 'danger');
+            displayMessage(nftGallery, error.message, 'danger');
         });
 }
+
 
 function createCardElement(nft) {
     const card = document.createElement('div');
@@ -102,13 +123,60 @@ function showNFTModal(nft) {
 }
 
 async function connectWallet() {
-    await window.phantom.solana.connect();
-    const walletKey = window.phantom.solana.publicKey.toBase58();
-    document.getElementById('walletKey').value = walletKey;
-    document.getElementById('walletKeyForm').style.display = 'block';
-    console.log(walletKey);
+    try {
+        await window.phantom.solana.connect();
+        const walletKey = window.phantom.solana.publicKey.toBase58();
+        document.getElementById('walletKey').value = walletKey;
+        document.getElementById('walletKeyForm').style.display = 'block';
+        console.log('Wallet connected successfully:', walletKey);
+
+        // Display a success message
+        showAlert('Wallet connected successfully!', 'success');
+
+        // Automatically submit the form via AJAX
+        submitForm();
+    } catch (error) {
+        console.error('Wallet connection failed:', error);
+
+        // Display an error message
+        showAlert('Wallet connection failed. Please try again.', 'danger');
+    }
+}
+
+function showAlert(message, type) {
+    const alertPlaceholder = document.getElementById('alertPlaceholder');
+    const wrapper = document.createElement('div');
+
+    let countdown = 5; // Countdown in seconds
+    wrapper.innerHTML = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message} <span id="countdown">(${countdown})</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `;
+    alertPlaceholder.append(wrapper);
+
+    const countdownElement = wrapper.querySelector('#countdown');
+
+    const countdownInterval = setInterval(() => {
+        countdown -= 1;
+        countdownElement.textContent = `(${countdown})`;
+
+        if (countdown <= 0) {
+            clearInterval(countdownInterval);
+            wrapper.classList.remove('show');
+            setTimeout(() => wrapper.remove(), 150); // Allow some time for the fade-out effect
+        }
+    }, 1000);
 }
 
 function displayMessage(container, message, type) {
     container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
 }
+
+document.getElementById('walletKeyForm').addEventListener('keypress', function (event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent the default form submission
+        submitForm(); // Submit the form data via AJAX
+    }
+});
