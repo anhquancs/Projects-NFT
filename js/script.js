@@ -74,8 +74,20 @@ function createCardElement(nft) {
     const card = document.createElement('div');
     card.className = 'col-lg-4 col-md-6 mb-4';
 
-    card.innerHTML = `
-        <div class="card h-100">
+    // Generate random positions
+    const randomTop = Math.floor(Math.random() * 50); // Random top position in percentage
+    const randomLeft = Math.floor(Math.random() * 50); // Random left position in percentage
+
+    card.style.position = 'relative';
+    card.style.top = `${randomTop}%`;
+    card.style.left = `${randomLeft}%`;
+
+    let originalWidth = null;
+    let originalHeight = null;
+    let isMoveMode = false;
+
+    const cardContent = `
+        <div class="card">
             <img src="${nft.image_uri}" class="card-img-top" alt="${nft.name}">
             <div class="card-body">
                 <h5 class="card-title">${nft.name}</h5>
@@ -86,8 +98,93 @@ function createCardElement(nft) {
         </div>
     `;
 
-    card.addEventListener('click', () => {
+    card.innerHTML = cardContent;
+
+    const img = card.querySelector('.card-img-top');
+    const cardBody = card.querySelector('.card-body');
+
+    img.addEventListener('click', () => {
+        isMoveMode = true;
+        document.addEventListener('keydown', onKeyDown);
+    });
+
+    cardBody.addEventListener('click', () => {
         showNFTModal(nft);
+    });
+
+    function onKeyDown(e) {
+        const step = 10; // Number of pixels to move or resize per key press
+        const rotationStep = 5; // Angle increment for rotation
+        if (isMoveMode) {
+            const currentTop = parseInt(card.style.top) || 0;
+            const currentLeft = parseInt(card.style.left) || 0;
+
+            switch (e.key) {
+                case 'ArrowUp':
+                    card.style.top = `${currentTop - step}px`;
+                    break;
+                case 'ArrowDown':
+                    card.style.top = `${currentTop + step}px`;
+                    break;
+                case 'ArrowLeft':
+                    card.style.left = `${currentLeft - step}px`;
+                    break;
+                case 'ArrowRight':
+                    card.style.left = `${currentLeft + step}px`;
+                    break;
+                case 'd':
+                    if (originalWidth === null || originalHeight === null) {
+                        originalWidth = card.offsetWidth;
+                        originalHeight = card.offsetHeight;
+                    }
+                    card.style.width = `${card.offsetWidth + step}px`;
+                    card.style.height = `${card.offsetHeight + step}px`;
+                    break;
+                case 's':
+                    if (originalWidth === null || originalHeight === null) {
+                        originalWidth = card.offsetWidth;
+                        originalHeight = card.offsetHeight;
+                    }
+                    card.style.width = `${Math.max(card.offsetWidth - step, 50)}px`;
+                    card.style.height = `${Math.max(card.offsetHeight - step, 50)}px`;
+                    break;
+                case 'w':
+                    {
+                        let currentRotation = parseInt(card.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+                        card.style.transform = `rotate(${currentRotation - rotationStep}deg)`;
+                    }
+                    break;
+                case 'e':
+                    {
+                        let currentRotation = parseInt(card.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+                        card.style.transform = `rotate(${currentRotation + rotationStep}deg)`;
+                    }
+                    break;
+
+
+            }
+            // Scroll the card into view after moving
+            card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+
+            // Prevent default behavior to avoid scrolling the page
+            e.preventDefault();
+        }
+    }
+
+    // Click outside to exit move mode
+    document.addEventListener('click', (e) => {
+        if (!card.contains(e.target)) {
+            isMoveMode = false;
+            document.removeEventListener('keydown', onKeyDown);
+
+            // Reset size only if size was changed
+            if (originalWidth !== null && originalHeight !== null) {
+                // Do not reset size immediately on clicking outside
+                // Keep the size until the next click on another card
+                originalWidth = null;
+                originalHeight = null;
+            }
+        }
     });
 
     return card;
@@ -180,3 +277,29 @@ document.getElementById('walletKeyForm').addEventListener('keypress', function (
         submitForm(); // Submit the form data via AJAX
     }
 });
+
+const toggleButton = document.getElementById('toggle-theme');
+const themeStylesheet = document.getElementById('theme-stylesheet');
+
+toggleButton.addEventListener('click', () => {
+    if (themeStylesheet.getAttribute('href') === 'css/light-mode.css') {
+        themeStylesheet.setAttribute('href', 'css/dark-mode.css');
+        toggleButton.textContent = 'Switch to Light Mode';
+    } else {
+        themeStylesheet.setAttribute('href', 'css/light-mode.css');
+        toggleButton.textContent = 'Switch to Dark Mode';
+    }
+});
+
+// JavaScript function to handle changing background color
+document.getElementById('change-background').addEventListener('click', function() {
+    let colorPicker = document.createElement('input');
+    colorPicker.type = 'color';
+    colorPicker.addEventListener('input', function() {
+        document.body.style.backgroundColor = colorPicker.value;
+    });
+    
+    // Open color picker dialog
+    colorPicker.click();
+});
+

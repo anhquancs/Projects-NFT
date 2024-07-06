@@ -1,0 +1,48 @@
+/* dark-mode.css */
+body {
+    background-color: #121212;
+    font-family: 'Arial', sans-serif;
+    color: #e0e0e0;
+}
+
+.card {
+    background-color: #1e1e1e;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+}
+
+.card-title {
+    color: #ffffff;
+}
+
+.card-text {
+    color: #bbbbbb;
+}
+
+.modal-content {
+    background-color: #343a40; /* Dark background */
+    color: #fff; /* White text */
+}
+.modal-header, .modal-body {
+    border-color: #6c757d; /* Secondary border color */
+}
+.btn-close {
+    filter: invert(1); /* Invert the close button color for dark mode */
+}
+
+.form-control.dark-mode {
+    background-color: #343a40; /* Dark background */
+    color: #fff; /* White text */
+    border: 1px solid #6c757d; /* Secondary border color */
+}
+.form-control.dark-mode::placeholder {
+    color: #adb5bd; /* Placeholder text color */
+}
